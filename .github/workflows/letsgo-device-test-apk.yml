@@ -52,6 +52,14 @@ jobs:
             "ndk;28.2.13676358" \
             "cmake;3.22.1"
 
+      - name: Set up Python build tools
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade fonttools
+
       - name: Build isolated test APK
         working-directory: android/app
         run: |
