@@ -1,0 +1,11 @@
+# NOT A LOADABLE PROFILE. Kept outside dm/games until a real survey is available.
+# Pokémon: Let's Go, Eevee!
+# Base title ID: 0100187003A36000
+# Target update: v1.0.2
+# All game-specific build, memory and shader values are intentionally omitted.
+# Do not copy values from Brilliant Diamond, Legends: Arceus, Scarlet/Violet or Legends: Z-A.
+title_id	0100187003A36000
+program_id	0100187003A36000
+name	Pokémon: Let's Go, Eevee!
+target_update	v1.0.2
+status	metadata_only_not_loadable
