@@ -1,0 +1,76 @@
+name: Pokémon Let's Go device test APK (launcher/Vulkan only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/pokemon-lets-go-eevee-scaffold
+    paths:
+      - 'android/**'
+      - 'dm/**'
+      - 'docs/**'
+      - 'peanuts/**'
+      - 'scripts/**'
+      - '.github/workflows/letsgo-device-test-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: letsgo-device-test-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build signed Android test APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK and NDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;28.2.13676358"
+
+      - name: Build isolated test APK
+        working-directory: android/app
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon \
+            -PnxApp=letsgo \
+            -PnxGames=0400486024DEC000 \
+            -PnxGenericHost=false \
+            -PnxPackEngine=fake \
+            apk
+
+      - name: Verify APK exists
+        run: |
+          test -s android/app/out/nxnative-android-letsgo.apk
+          ls -lh android/app/out/nxnative-android-letsgo.apk
+          sha256sum android/app/out/nxnative-android-letsgo.apk
+
+      - name: Upload installable test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: peanuts-native-android-device-test
+          path: android/app/out/nxnative-android-letsgo.apk
+          if-no-files-found: error
+          retention-days: 14
